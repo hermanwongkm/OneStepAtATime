@@ -5,6 +5,8 @@ ReadingsPerSecond = 20.0
 defaultMinτ = 40
 defaultMaxτ = 100
 
+LAG_MIN = 40
+LAG_MAX = 100
 
 def calculateSquared(num):
     return num**2
@@ -53,3 +55,30 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+def a(n):
+    return magReadings[n]
+    
+def mean(m, t):
+    sum = 0
+    for i in range(m, m+lag):
+        sum += a(i)
+    return sum / lag
+
+
+def nac(m, lag):
+    for k  in range(0, lag):
+        num = (a(m+k) - mean(m, lag)) * (a(m+k+lag) - mean(m+lag, lag))
+    denom = lag * std(m, lag) * std(m+lag, lag)
+    return num / denom
+
+def maxnac(m):
+    max = -math.inf
+    lag_opt = LAG_MIN
+    for lag in range(LAG_MIN, LAG_MAX):
+        curr = nac(m,lag)
+        if (curr > max):
+            max = curr
+            lag_opt = lag
+
+    return lag_opt
