@@ -11,7 +11,6 @@ LAG_MAX = 100
 def calculateSquared(num):
     return num**2
 
-
 def calculateMagnitude(x, y, z):
     tempMag = calculateSquared(x) + calculateSquared(y) + calculateSquared(z)
     return math.sqrt(tempMag)
@@ -32,10 +31,12 @@ def calculateAverage(data,begin,end):
     
 
 def batshitCrazyThingHere(magReadings):
-    sd = calculateSD(magReadings,60,80)
-    print(sd)
-    if(sd < 0.01):
-        print("Idle")
+    for second in range(0, magReadings/20):
+        sd = calculateSD(magReadings, second, second+20)
+        if (sd < 0.01):
+            print("Idle")
+        else:
+            print("Unknown")
 
 def main():
     file = open("stationery.txt", "r")
@@ -56,6 +57,7 @@ def main():
 if __name__ == '__main__':
     main()
 
+# NASC stuff below
 def a(n):
     return magReadings[n]
     
@@ -65,6 +67,12 @@ def mean(m, t):
         sum += a(i)
     return sum / lag
 
+def std(m, t):
+    mu = mean(m, t)
+    sum = 0
+    for i in range(m, m+lag):
+        sum+= (a(i)-mu)^2
+    return sum / lag
 
 def nac(m, lag):
     for k  in range(0, lag):
