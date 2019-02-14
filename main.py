@@ -5,7 +5,7 @@ ReadingsPerSecond = 20.0
 magReadings = []
 STATUS = "IDLE"
 
-LAG_MIN = 1
+LAG_MIN = 5
 LAG_MAX = 20
 
 
@@ -111,24 +111,26 @@ def calculateNASC(index,magReadings, lag):
 
 
 def processDataReadings(index,magReadings):
-    print("Index:" + str(index) + " With magnitude: " + str(magReadings[index]))
+    # print("Index:" + str(index) + " With magnitude: " + str(magReadings[index]))
     # Calculate SD for 1 second to detect if there is any large variation
     sd = calculateSD(magReadings,index,index + int(ReadingsPerSecond))
-    print("Index:" + str(index) + " With SD: " + str(sd))
+    # print("Index:" + str(index) + " With SD: " + str(sd))
     if(sd < 0.01):
         STATUS = "IDLE"
         print(STATUS)
     else:
         #Since im not idle, i want to loop through all the lag range to find the lag with the highest correlation
         autoCorrelationValue = maxNASC(index,magReadings)
-        print(autoCorrelationValue)
+        # print(autoCorrelationValue)
         if(autoCorrelationValue > 0.7):
             STATUS ="WALKING"
             print("WALKING")
+        else:
+            print("Driving")
 
 
 def main():
-    file = open("movement.txt", "r")
+    file = open("move.txt", "r")
     readings = []
     for line in file:
         data = line.split()
