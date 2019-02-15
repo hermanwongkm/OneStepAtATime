@@ -8,9 +8,6 @@ STATUS = "IDLE"
 LAG_MIN = 16
 LAG_MAX = 40
 
-SumPerSecond = 0
-CountPerSecond = 0
-
 def calculateSquared(num):
     return num**2
 
@@ -76,17 +73,27 @@ def calculateNASC(index,magReadings, lag):
 def processDataReadings(index,magReadings):
     # print("Index:" + str(index) + " With magnitude: " + str(magReadings[index]))
     # Calculate SD for 1 second to detect if there is any large variation
+    autoCorrelations = []
+
     global STATUS
+    
     sd = calculateSD(magReadings,index,index + int(ReadingsPerSecond))
-    print("Index:" + str(index) + " With SD: " + str(sd))
+    
     if(sd < 0.01):
+        print("Index:" + str(index) + " With SD: " + str(sd))
         STATUS = "IDLE"
         print(STATUS)
     else:
-        #Since im not idle, i want to loop through all the lag range to find the lag with the highest correlation
-        autoCorrelationValue = maxNASC(index,magReadings)
-        print(autoCorrelationValue)
-        if(autoCorrelationValue > 0.7):
+        for i in range(index, min(len(magReadings) - 2*LAG_MAX, index+20)):
+            autoCorrelationValue = maxNASC(i,magReadings)
+            autoCorrelations.append(autoCorrelationValue)
+
+            #acChosen = max(autoCorrelations)
+            acChosen = calculateAverage(autoCorrelations, 0, 20)
+            #Since im not idle, i want to loop through all the lag range to find the lag with the highest correlation
+        
+        print(acChosen)
+        if(acChosen > 0.7):
             STATUS ="WALKING"
             print("WALKING")
         else:
@@ -94,7 +101,7 @@ def processDataReadings(index,magReadings):
 
 
 def main():
-    file = open("Walkingp", "r")
+    file = open("Walkinghermhold", "r")
     readings = []
     for line in file:
         data = line.split()
@@ -105,8 +112,8 @@ def main():
     for x in range(0, len(readings), 3):
         temp = calculateMagnitude(readings[x], readings[x+1], readings[x+2])
         magReadings.append(temp)  # Converts all into their magnitude
-    for index, magReading in enumerate(magReadings[:(len(magReadings) - LAG_MAX*2)]):
-        processDataReadings(index,magReadings)
+    for index in range(0, len(magReadings) - LAG_MAX*2, 20):
+        processDataReadings(index, magReadings)
     # status = processDataReadings(magReadings)
     # for s in status:
     #     print(s)
