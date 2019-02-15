@@ -79,8 +79,9 @@ def processDataReadings(index,magReadings):
     
     sd = calculateSD(magReadings,index,index + int(ReadingsPerSecond))
     
-    if(sd < 0.01):
-        print("Index:" + str(index) + " With SD: " + str(sd))
+    print("Index:" + str(index) + " With SD: " + str(sd))
+
+    if(sd < 0.02):
         STATUS = "IDLE"
         print(STATUS)
     else:
@@ -93,15 +94,17 @@ def processDataReadings(index,magReadings):
             #Since im not idle, i want to loop through all the lag range to find the lag with the highest correlation
         
         print(acChosen)
-        if(acChosen > 0.7):
+        if (acChosen > 0.6 and sd > 0.17):
             STATUS ="WALKING"
-            print("WALKING")
-        else:
-            print(STATUS)
-
+        elif (acChosen > 0.4 and sd < 0.05):     
+            STATUS = "DRIVING"
+        elif (acChosen > 0.4 and sd > 0.2):
+            STATUS = "WALKING"
+        
+        print(STATUS)
 
 def main():
-    file = open("Walkinghermhold", "r")
+    file = open("Idle2", "r")
     readings = []
     for line in file:
         data = line.split()
@@ -112,12 +115,14 @@ def main():
     for x in range(0, len(readings), 3):
         temp = calculateMagnitude(readings[x], readings[x+1], readings[x+2])
         magReadings.append(temp)  # Converts all into their magnitude
+    # print(magReadings)
     for index in range(0, len(magReadings) - LAG_MAX*2, 20):
         processDataReadings(index, magReadings)
+    print("magReadingAvg:" + str(calculateAverage(magReadings, 0, len(magReadings))))
+    print("magReadingMax:" + str(max(magReadings)))
     # status = processDataReadings(magReadings)
     # for s in status:
     #     print(s)
-
-
+    
 if __name__ == '__main__':
     main()
