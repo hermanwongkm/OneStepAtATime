@@ -5,48 +5,11 @@ ReadingsPerSecond = 20.0
 magReadings = []
 STATUS = "IDLE"
 
-LAG_MIN = 5
-LAG_MAX = 20
+LAG_MIN = 16
+LAG_MAX = 40
 
-
-def a(n):
-    # return magReadings[n]
-    return 30
-
-
-def mean(m, lag):
-    sum = 0
-    for i in range(m, m+lag):
-        sum += a(i)
-    return sum / lag
-
-
-def std(m, lag):
-    mu = mean(m, lag)
-    sum = 0
-    for i in range(m, m+lag):
-        sum += (a(i)-mu) ^ 2
-    return sum / lag
-
-
-def nac(m, lag):
-    for k in range(0, lag):
-        num = (a(m+k) - mean(m, lag)) * (a(m+k+lag) - mean(m+lag, lag))
-    denom = lag * std(m, lag) * std(m+lag, lag)
-    return num / denom
-
-
-# def maxnac(m):
-#     max = -100000000000000
-#     lag_opt = LAG_MIN
-#     for lag in range(LAG_MIN, LAG_MAX):
-#         curr = nac(m, lag)
-#         if (curr > max):
-#             max = curr
-#             lag_opt = lag
-
-#     return lag_opt
-
+SumPerSecond = 0
+CountPerSecond = 0
 
 def calculateSquared(num):
     return num**2
@@ -65,7 +28,7 @@ def calculateSD(data, begin, end):
     average = calculateAverage(data, begin, end) #average of 1 second from begin + 20
     for k in range(begin, end): 
         sum += calculateSquared(data[k] - average)
-    return math.sqrt(sum/ReadingsPerSecond)
+    return math.sqrt(sum/(end-begin))
 
 
 def calculateAverage(data, begin, end):
@@ -94,14 +57,14 @@ def calculateNASC(index,magReadings, lag):
     avgForReading = calculateAverage(magReadings,index,end)
     sdForReading = calculateSD(magReadings,index,end)
 
-    avgForLag = calculateAverage(magReadings,index,end + lag)
-    sdForLag = calculateSD(magReadings,index,end + lag)
+    avgForLag = calculateAverage(magReadings,end,end + lag)
+    sdForLag = calculateSD(magReadings,end,end + lag)
 
     sum = 0.0
     for x in range(index, index + lag):
         top = magReadings[x] - avgForReading
-        bottom = magReadings[index + lag] - avgForLag
-    sum += top * bottom
+        bottom = magReadings[x + lag] - avgForLag
+        sum += top * bottom
 
     normalization = lag * sdForReading * sdForLag
     if(normalization  == 0):
@@ -113,24 +76,25 @@ def calculateNASC(index,magReadings, lag):
 def processDataReadings(index,magReadings):
     # print("Index:" + str(index) + " With magnitude: " + str(magReadings[index]))
     # Calculate SD for 1 second to detect if there is any large variation
+    global STATUS
     sd = calculateSD(magReadings,index,index + int(ReadingsPerSecond))
-    # print("Index:" + str(index) + " With SD: " + str(sd))
+    print("Index:" + str(index) + " With SD: " + str(sd))
     if(sd < 0.01):
         STATUS = "IDLE"
         print(STATUS)
     else:
         #Since im not idle, i want to loop through all the lag range to find the lag with the highest correlation
         autoCorrelationValue = maxNASC(index,magReadings)
-        # print(autoCorrelationValue)
+        print(autoCorrelationValue)
         if(autoCorrelationValue > 0.7):
             STATUS ="WALKING"
             print("WALKING")
         else:
-            print("Driving")
+            print(STATUS)
 
 
 def main():
-    file = open("move.txt", "r")
+    file = open("Walkingp", "r")
     readings = []
     for line in file:
         data = line.split()
@@ -141,7 +105,7 @@ def main():
     for x in range(0, len(readings), 3):
         temp = calculateMagnitude(readings[x], readings[x+1], readings[x+2])
         magReadings.append(temp)  # Converts all into their magnitude
-    for index, magReading in enumerate(magReadings[:(len(magReadings)- LAG_MAX)]):
+    for index, magReading in enumerate(magReadings[:(len(magReadings) - LAG_MAX*2)]):
         processDataReadings(index,magReadings)
     # status = processDataReadings(magReadings)
     # for s in status:

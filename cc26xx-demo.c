@@ -246,7 +246,8 @@ static void
 get_mpu_reading()
 {
   int value;
-  clock_time_t next = 1/20;
+  clock_time_t next = 1;
+  printf("%ul", clock_seconds());
 
   // printf("MPU Acc: X=");
   value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_X);
