@@ -12,8 +12,17 @@ page 293, 2012`
 
 ### Why use auto correlation?
 
-While there exists many methods, 
+While there exists many methods for step counting, the simplest one are using some threshold to determine the state. However, as with any threshold techique, the major drawback is determining the optimal level of threshold as this would defer from individual to individual.  
 
+Instead of using threshold methodology, based on the various paper, we decided that a periodic method would inherently be better due to the cyclical nature of walking. 
+
+### Overview of algorithm
+
+**Idle**
+When a user is idle, it is expected that acceleration would be low. Thus the standard deviation in the magnitude of accleration would be low and be a good indicator of this state. However, sudden movement will lead to a higher SD, thus, we utlized auto-correlation to detect for cyclical movement.
+
+**Walking**
+If we were to plot a graph based on the 3 axis, we could observe that walking exhibits a very periodical and repetitive pattern. We can then make use of this repeititve pattern as a way to determine the user's state. 
 
 ### Running 
 
