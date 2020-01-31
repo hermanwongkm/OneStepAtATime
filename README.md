@@ -1,9 +1,18 @@
-# OneStepAtATime
-## Step counter using auto-correlation 
+# OneStepAtATime - Step counter using auto-correlation 
+This project's auto-correlation algorithm is based on the paper:
 
-1. This project utilizes Contiki, a microcontroller's accelerometer to measure and record movements. 
-2. Next, this data is then processed through the python file.
-3. The core of the algorithm is the autoc-orrelation function, which can be used to find the periodicity in a noisy signaland determine if the user is on the bus, walking or stationary. 
+`A. Rai, K. K. Chintalapudi, V. N. Padmanabhan, and R. Sen. Zee -
+zero-effort crowdsourcing for indoor localization. In Mobicom ’12,
+page 293, 2012` 
+
+## What is this project about?
+1. This project utilizes Contiki, using the microcontroller's  X,Y,Z accelerometer data to measure and record movements. 
+2. The objective is to determine if the user is walking, in a bus or is stationery (small movements are allowed).
+3. The core of the algorithm is the auto-correlation function, which can be used to find the periodicity in a noisy signaland determine if the user is on the bus, walking or stationary.
+
+### Why use auto correlation?
+
+While there exists many methods, 
 
 
 ### Running 
